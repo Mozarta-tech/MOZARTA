@@ -1,20 +1,40 @@
-const getTasks = (req, res) => {
- 		res.status(200).json({ message: 'Get All Tasks' });
- 	}
+const asyncHandler = ('express-async-handler');
+const Task = require('../models/taskModel');
+const getTasks = asyncHandler(async(req, res) => {
+	const tasks = await Task.find();
+ 		res.status(200).json(tasks);
+ 	})
 
-    const setTask = (req, res) => {
-        if(!req.body.text){
-		res.status(400).json({ message: 'Please enter a task'});
+    const setTask = asyncHandler(async(req, res) => {
+        if(!req.body || !req.body.text){
+		res.status(400)
+		throw new Error('Please enter a task');
 	}
+	const task = await Task.create({text: req.body.text})
 
 	res.status(200).json({ message: 'Create Task' });
-}
+})
 
-const updateTask = (req, res) => {
-	res.status(200).json({ message: `Task ${req.params.id} updated.` });
-}
+const updateTask = asyncHandler(async(req, res) => {
+	const task = await Task.findById(req.params.id);
+	if (!task) {
+	res.status(400);
+	throw new Error('Task not found');
+	}
+	const updateTask = await Task.findByIdAndUpdate(req.params.id, req.body, {new: true})
+	res.status(200).json(updateTask);
+})
 
-const deleteTask = (req, res) => {
-	res.status(200).json({ message: `Task ${req.params.id}  deleted.` });
-}
-	module.exports = { getTasks }
+const deleteTask = asyncHandler(async(req, res) => {
+	const task = await Task.findById(req.params.id);
+	if (!task) {
+	res.status(400);
+	throw new Error('Task not found');
+	}
+	await Task.findByIdAndDelete(req.params.id);
+	res.status(200).json({id: req.params.id});
+})
+	module.exports = { getTasks, setTask, updateTask, deleteTask };
+
+
+	
