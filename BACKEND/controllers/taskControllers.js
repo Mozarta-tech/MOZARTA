@@ -1,6 +1,6 @@
-const asyncHandler = ('express-async-handler');
-const Task = require('../models/taskModel');
-const User =require('../models/Usermodels');
+const asyncHandler = require ('express-async-handler');
+const Task = require('../models/taskModels');
+const User =require('../models/userModel');
 
 const getTasks = asyncHandler(async(req, res) => {
 	const tasks = await Task.find({user: req.user.id});
